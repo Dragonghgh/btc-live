@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Live Bitcoin & Miner Tracker</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Real-time Bitcoin price, hashrate, miner stocks and news – works on any phone or computer.">
+  <style>
+    body{margin:0;font-family:system-ui;background:#111;color:#eee;display:flex;flex-direction:column;align-items:center;padding:1rem}
+    h1{margin:.5rem 0 1rem;font-size:1.6rem}
+    section{width:100%;max-width:700px;margin-bottom:2rem}
+    .card{background:#1e1e1e;border-radius:8px;padding:1rem}
+    .price{font-size:2rem;font-weight:700;color:#f2a900}
+    .label{font-size:.85rem;opacity:.7}
+    iframe{width:100%;height:260px;border:0;border-radius:6px}
+    a{color:#f2a900}
+  </style>
+</head>
+<body>
+
+  <h1>🔴 Live Bitcoin & Miner Tracker</h1>
+
+  <!-- REAL-TIME PRICE -->
+  <section class="card">
+    <div class="label">BTC / USD</div>
+    <div class="price" id="price">–––</div>
+  </section>
+
+  <!-- HASHRATE -->
+  <section class="card">
+    <div class="label">Bitcoin network hashrate (7-day average)</div>
+    <div id="hashrate">Loading…</div>
+  </section>
+
+  <!-- MINER STOCKS -->
+  <section class="card">
+    <div class="label">Public miner stocks (1-day %)</div>
+    <iframe src="https://bitbo.io/widgets/mining-stocks/" title="Mining stocks"></iframe>
+  </section>
+
+  <!-- LATEST NEWS -->
+  <section class="card">
+    <div class="label">Latest Bitcoin news</div>
+    <iframe src="https://news.google.com/search?q=bitcoin&hl=en&output=embed" title="BTC news"></iframe>
+  </section>
+
+  <!-- SEO & DISCOVERABILITY -->
+  <footer style="font-size:.75rem;opacity:.6;text-align:center">
+    Data: <a href="https://mempool.space" target="_blank" rel="noopener">Mempool</a> · <a href="https://bitbo.io" target="_blank" rel="noopener">Bitbo</a> · News: Google
+  </footer>
+
+  <script>
+    /* ---------- PRICE ---------- */
+    async function getPrice(){
+      const r = await fetch('https://api.coinbase.com/v2/exchange-rates?currency=BTC');
+      const j = await r.json();
+      document.getElementById('price').textContent =
+        '$' + Number(j.data.rates.USD).toLocaleString(undefined,{maximumFractionDigits:2});
+    }
+    getPrice();
+    setInterval(getPrice, 30_000);          // 30-second refresh
+
+    /* ---------- HASHRATE ---------- */
+    async function getHashrate(){
+      const r = await fetch('https://api.blockchain.info/stats');
+      const j = await r.json();
+      const hr = (j.hash_rate / 1e9).toFixed(2); // EH/s
+      document.getElementById('hashrate').textContent = hr + ' EH/s';
+    }
+    getHashrate();
+    setInterval(getHashrate, 300_000);      // 5-minute refresh
+  </script>
+</body>
+</html>
